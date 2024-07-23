@@ -1098,11 +1098,16 @@ fn itemize(bytes: &[u8]) -> crate::Result<ReportDescriptorItems> {
         // FIXME: this will break if we ever get long items
         let item = match ShortItem::try_from(&bytes[offset..]) {
             Ok(item) => item,
-            Err(e) => {
-                return Err(ParserError::InvalidData {
-                    offset,
-                    message: format!("{e}"),
-                });
+            Err(_e) => {
+                // TODO: lots of devices (controllers specifically) have a few
+                // garbage bytes at the end of the report descriptor. this is a
+                // hack to just ignore them but may also cause issues by allowing
+                // the tools to try and work with partial/corrupt report descriptors
+                break;
+                // return Err(ParserError::InvalidData {
+                //     offset,
+                //     message: format!("{e}"),
+                // });
             }
         };
         let off = offset;
